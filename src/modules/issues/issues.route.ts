@@ -6,8 +6,12 @@ import { USER_ROLE } from "../../utility/util";
 const router = Router()
 
 
-router.post('/', authorization.issueCreateAuth(USER_ROLE.contributor, USER_ROLE.maintainer), issuecontroller.createIssues)
+router.post('/', authorization.issueAuth(USER_ROLE.contributor, USER_ROLE.maintainer), issuecontroller.createIssues)
 router.get('/', issuecontroller.getAllIssues)
+router.get('/:id', issuecontroller.getSingleIssues)
+router.put('/:id', issuecontroller.updateIssue)
+router.delete('/:id', authorization.issueAuth(USER_ROLE.maintainer), issuecontroller.deleteIssue)
+
 
 
 

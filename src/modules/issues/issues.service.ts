@@ -44,11 +44,11 @@ const createIssueIntoDB = async (req: Request, payload: Issues) => {
 //& GET ALL ISSUES FROM DB
 const getAllIssuesFromDB = async () => {
   try {
-    const result = await pool.query (`
+    const result = await pool.query(`
       SELECT * FROM issues
     `)
 
-    if(result.rows.length === 0){
+    if (result.rows.length === 0) {
       return []
     }
 
@@ -60,11 +60,11 @@ const getAllIssuesFromDB = async () => {
           SELECT id, name, role FROM users
           WHERE id = $1
         `, [uId])
-        
+
         const reporter = reporterResult.rows[0]
         delete row.reporter_id
 
-        const {created_at, updated_at, ...issue} = row
+        const { created_at, updated_at, ...issue } = row
 
         return {
           ...issue,
@@ -76,42 +76,113 @@ const getAllIssuesFromDB = async () => {
     )
 
     return issues
-
-
-    // const abc = result.rows.map(async (row) => {
-    //   // console.log('each issue : ', row)
-    //   const uId = row.reporter_id
-    //   const reporter = await pool.query(`
-    //     SELECT * FROM users WHERE id = $1
-    //   `, [uId])
-
-    //   const {email, password, create_at, update_at, ...repo} = reporter.rows[0]
-
-    //   // console.log('user info : ', repo)
-
-    //   delete row.reporter_id
-
-    //   const response = {
-    //     row,
-    //     repo 
-    //   }
-
-    //   console.log('combine : ', response)
-    // })
-
-
-
-
-
-    // return result
   }
-   catch (error: any) {
+  catch (error: any) {
     throw new Error(error.message)
   }
 }
 
 
+
+
+//& GET SINGLE ISSUES FROM DB
+const getSingleIssuesFromDB = async (id: string) => {
+  try {
+
+    const result = await pool.query(`
+      SELECT * FROM issues WHERE id = $1
+    `, [id])
+
+    if (result.rows.length === 0) {
+      return []
+    }
+
+    const uId = result.rows[0].reporter_id
+
+    const reporterResult = await pool.query(`
+          SELECT id, name, role FROM users
+          WHERE id = $1
+        `, [uId])
+
+    const reporter = reporterResult.rows[0]
+
+    delete result.rows[0].reporter_id
+
+    const { created_at, updated_at, ...issue } = result.rows[0]
+
+    return {
+      ...issue,
+      reporter: reporter,
+      created_at,
+      updated_at
+    }
+  }
+  catch (error: any) {
+    throw new Error(error.message)
+  }
+}
+
+
+
+//& UPDATE ISSUE FROM DB
+const updateIssueInfoBD = async (payload: Issues, id: string) => {
+  try {
+
+    const {title, description, type, status} = payload
+
+    const isIssue = await pool.query(`
+      SELECT * FROM issues 
+      WHERE id = $1  
+    `, [id])
+
+    if (isIssue.rows.length === 0) {
+      return false
+    }
+
+    const result = await pool.query(`
+      UPDATE issues 
+      SET 
+      title = $1,
+      description = $2,
+      type = $3,
+      status = $4,
+      updated_at = NOW()
+      WHERE id = $5
+      RETURNING *
+    `, [title, description, type, status, id])
+
+    return result
+
+  } 
+  catch (error: any) {
+    throw new Error(error)
+  }
+}
+
+
+
+//& DELETE ISSUE
+const deleteIssueFromDB = async (id: string) => {
+  try {
+    const result = await pool.query(`
+      DELETE FROM issues 
+      WHERE id = $1
+    `, [id])
+
+    return result
+  }
+  catch (error) {
+    throw new Error("Internal error!")
+  }
+
+}
+
+
+
 export const issueService = {
   createIssueIntoDB,
   getAllIssuesFromDB,
+  getSingleIssuesFromDB,
+  deleteIssueFromDB,
+  updateIssueInfoBD,
 }

@@ -11,8 +11,8 @@ const createIssues = async (req: Request, res: Response) => {
     const body: Issues = req.body
     const result = await issueService.createIssueIntoDB(req, body);
 
-    if(!result){
-      return badResponse(res, 'Invalid input!') 
+    if (!result) {
+      return badResponse(res, 'Invalid input!')
     }
     return successResponse(res, 'Issue created successfully', result.rows[0])
 
@@ -30,12 +30,30 @@ const getAllIssues = async (req: Request, res: Response) => {
 
   try {
     const result = await issueService.getAllIssuesFromDB()
-    
-    if(result.length === 0){
+
+    if (result.length === 0) {
       return notFoundResponse(res)
     }
     return allResponse(res, result)
-  } 
+  }
+  catch (error: any) {
+    return errorResponse(res, error.message, error)
+  }
+}
+
+
+//& GET SINGLE ISSUES
+const getSingleIssues = async (req: Request, res: Response) => {
+
+  try {
+    const { id } = req.params
+    const result = await issueService.getSingleIssuesFromDB(id as string)
+
+    if (result.length === 0) {
+      return notFoundResponse(res)
+    }
+    return allResponse(res, result)
+  }
   catch (error: any) {
     return errorResponse(res, error.message, error)
   }
@@ -43,7 +61,50 @@ const getAllIssues = async (req: Request, res: Response) => {
 
 
 
+//& UPDATE ISSUE
+const updateIssue = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+    const body = req.body
+    // console.log('body: ', body)
+    
+    const result = await issueService.updateIssueInfoBD(body, id as string)
+
+    if (!result) {
+      return notFoundResponse(res)
+    }
+
+    return successResponse(res, "Issue updated successfully", result.rows[0])
+
+  } 
+  catch (error: any) {
+    return errorResponse(res, error.message, error)
+  }
+}
+
+
+//& DELETE ISSUE
+const deleteIssue = async (req: Request, res: Response) => {
+  try {
+    const { id } = req.params
+
+    const reslut = await issueService.deleteIssueFromDB(id as string)
+
+    if (reslut.rowCount === 0) {
+      return notFoundResponse(res)
+    }
+
+    return successResponse(res, "Issue deleted successfully")
+
+  } catch (error: any) {
+    return errorResponse(res, error.message, error)
+  }
+}
+
 export const issuecontroller = {
   createIssues,
   getAllIssues,
+  getSingleIssues,
+  updateIssue,
+  deleteIssue,
 }
