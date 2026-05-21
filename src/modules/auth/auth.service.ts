@@ -1,6 +1,6 @@
 import { pool } from "../../db"
 import bcrypt from 'bcrypt'
-import type { User } from "./types";
+import type { LoginBody, User } from "./types";
 import jwt, { type JwtPayload } from "jsonwebtoken"
 import config from "../../config/env";
 
@@ -8,40 +8,46 @@ import config from "../../config/env";
 //& CREATE USER
 const createUserIntoDB = async (payload: User) => {
 
-  const {password} = payload
-  
-  const hasPass = await bcrypt.hash(password, 9);
-  payload.password = hasPass
+  try {
+    const { password } = payload
 
-  const keys = Object.keys(payload)
-  const values = Object.values(payload)
+    const hasPass = await bcrypt.hash(password, 9);
+    payload.password = hasPass
 
-  const cols = keys.join(", ")
+    const keys = Object.keys(payload)
+    const values = Object.values(payload)
 
-  const placeholder = keys.map((_, idx) => `$${idx + 1}`).join(", ")
+    const cols = keys.join(", ")
 
-  const result = await pool.query(`
+    const placeholder = keys.map((_, idx) => `$${idx + 1}`).join(", ")
+
+    const result = await pool.query(`
         INSERT INTO users (${cols})
         VALUES (${placeholder})
         RETURNING * 
       `, values)
 
-  delete result.rows[0].password
-  return result
+    delete result.rows[0].password
+    return result
+  } catch (error: any) {
+    throw new Error(error.message)
+  }
 }
 
 
 
 
 //& LOGIN USER
-const loginUserFromDB = async (payload: any) => {
+const loginUserFromDB = async (payload: LoginBody) => {
 
   try {
     const { email, password } = payload
 
     const isUser = await pool.query(`
       SELECT * FROM users WHERE email = $1
-      `, [email])
+    `, [email])
+
+      console.log(isUser.rows[0])
 
     if (isUser.rows.length === 0) {
       throw new Error("Invalid Credential!")
@@ -61,18 +67,17 @@ const loginUserFromDB = async (payload: any) => {
       name,
       email,
       role,
-    }
+    } as JwtPayload
 
     console.log('jwt payload : ', jwtPayload)
 
     const token = jwt.sign(jwtPayload, config.jwtSecret, { expiresIn: config.accessTokenExpire })
 
     delete isUser.rows[0].password
-    console.log('after pass delete', isUser.rows[0])
 
     const result = {
       token,
-      user: isUser.rows[0]
+      user: isUser.rows[0] as User
     }
 
     return result
