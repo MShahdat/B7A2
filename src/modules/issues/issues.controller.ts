@@ -1,5 +1,5 @@
 import type { Request, Response } from "express"
-import { allResponse, badResponse, errorResponse, notFoundResponse, successResponse } from "../../utility/sendResponse"
+import { allResponse, badResponse, errorResponse, forbiddenResponse, notFoundResponse, successResponse } from "../../utility/sendResponse"
 import { issueService } from "./issues.service"
 import type { Issues } from "./type"
 
@@ -67,16 +67,20 @@ const updateIssue = async (req: Request, res: Response) => {
     const { id } = req.params
     const body = req.body
     // console.log('body: ', body)
-    
+
     const result = await issueService.updateIssueInfoBD(body, id as string)
 
+    
     if (!result) {
       return notFoundResponse(res)
+    } 
+    else {
+      return successResponse(res, "Issue updated successfully", result.rows[0])
     }
 
-    return successResponse(res, "Issue updated successfully", result.rows[0])
 
-  } 
+
+  }
   catch (error: any) {
     return errorResponse(res, error.message, error)
   }

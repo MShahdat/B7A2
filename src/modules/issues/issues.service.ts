@@ -11,28 +11,28 @@ const createIssueIntoDB = async (req: Request, payload: Issues) => {
     const issueType = payload.type
     const issueStatus = payload?.status
 
-    console.log(issueType, issueStatus)
+    const validType = issueType === "bug" || issueType === "feature_request"
+    const validStatus = issueStatus === "open" || issueStatus === "in_progress" || issueStatus === "resolved" || issueStatus === undefined
 
-    if ((issueType === "bug" || issueType === "feature_request") && (issueStatus === "open" || issueStatus === "in_progress" || issueStatus === "resolved" || issueStatus === undefined)) {
-      payload.reporter_id = req.user?.id
-      const keys = Object.keys(payload)
-      const values = Object.values(payload)
+    if (!validStatus || !validType) {
+      return false
+    }
 
-      const cols = keys.join(", ")
-      const placeholder = keys.map((_, idx) => `$${idx + 1}`).join(", ")
-      // console.log(placeholder)
+    payload.reporter_id = req.user?.id
+    const keys = Object.keys(payload)
+    const values = Object.values(payload)
 
-      const result = await pool.query(`
+    const cols = keys.join(", ")
+    const placeholder = keys.map((_, idx) => `$${idx + 1}`).join(", ")
+    // console.log(placeholder)
+
+    const result = await pool.query(`
         INSERT INTO issues (${cols})
         VALUES (${placeholder})
         RETURNING * 
       `, values)
 
-      return result
-    }
-    else {
-      return false
-    }
+    return result
   }
   catch (error: any) {
     throw new Error(error.message)
@@ -128,8 +128,15 @@ const getSingleIssuesFromDB = async (id: string) => {
 const updateIssueInfoBD = async (payload: Issues, id: string) => {
   try {
 
-    const {title, description, type, status} = payload
+    const { title, description, type, status } = payload
+    // console.log(status)
 
+    const validType = type === "bug" || type === "feature_request" || type === undefined
+    const validStatus = status === "open" || status === "in_progress" || status === "resolved" || status === undefined
+
+    if (!validType || !validStatus) {
+      throw new Error("Invalid type or status")
+    }
     const isIssue = await pool.query(`
       SELECT * FROM issues 
       WHERE id = $1  
@@ -142,18 +149,17 @@ const updateIssueInfoBD = async (payload: Issues, id: string) => {
     const result = await pool.query(`
       UPDATE issues 
       SET 
-      title = $1,
-      description = $2,
-      type = $3,
-      status = $4,
+      title = COALESCE($1, title),
+      description = COALESCE ($2, description),
+      type = COALESCE ($3, type),
+      status = COALESCE($4, status),
       updated_at = NOW()
       WHERE id = $5
       RETURNING *
     `, [title, description, type, status, id])
 
     return result
-
-  } 
+  }
   catch (error: any) {
     throw new Error(error)
   }
