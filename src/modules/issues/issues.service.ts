@@ -42,11 +42,33 @@ const createIssueIntoDB = async (req: Request, payload: Issues) => {
 
 
 //& GET ALL ISSUES FROM DB
-const getAllIssuesFromDB = async () => {
+const getAllIssuesFromDB = async (
+  sort: "newest" | "oldest" = "newest",
+  type?: "bug" | "feature_request",
+  status?: "open" | "in_progress" | "resolved"
+ ) => {
   try {
+
+    const conditions: string[] = []
+    const values = []
+
+    if(type){
+      values.push(type)
+      conditions.push(`type = $${values.length}`)
+    }
+
+    if(status){
+      values.push(status)
+      conditions.push(`status = $${values.length}`)
+    }
+
+    const whereClause = conditions.length > 0 ? `WHERE ${conditions.join(" AND ")}` : "" 
+
+    const orderClause = `ORDER BY created_at ${sort === "oldest" ? "ASC" : "DESC"}`
+
     const result = await pool.query(`
-      SELECT * FROM issues
-    `)
+      SELECT * FROM issues ${whereClause} ${orderClause}
+    `, values)
 
     if (result.rows.length === 0) {
       return []

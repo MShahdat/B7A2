@@ -29,7 +29,11 @@ const createIssues = async (req: Request, res: Response) => {
 const getAllIssues = async (req: Request, res: Response) => {
 
   try {
-    const result = await issueService.getAllIssuesFromDB()
+    const sort = (req.query.sort as "newest" | "oldest") ?? "newest"
+    const type = req.query.type as "bug" | "feature_request"
+    const status = req.query.status as "open" | "in_progress" | "resolved"
+
+    const result = await issueService.getAllIssuesFromDB(sort, type, status)
 
     if (result.length === 0) {
       return notFoundResponse(res)
