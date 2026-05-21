@@ -7,7 +7,7 @@ import { pool } from "../db";
 const issueCreateAuth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-      // console.log('auth is running .....')
+
       const token = req.headers.authorization;
       // console.log('token : ', token)
 

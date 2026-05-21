@@ -16,7 +16,7 @@ export const rootResponse = (res: Response) => {
 
 
 //& SUCCESS RESPNSE
-export const successResponse = (res: Response, message: string, data?: User) => {
+export const successResponse = (res: Response, message?: string, data?: User) => {
   const response = {
     success: true,
     message,
@@ -24,6 +24,18 @@ export const successResponse = (res: Response, message: string, data?: User) => 
   }
   res.status(200).json(response)
 }
+
+
+
+//& GET ALL SUCCESS RESPNSE
+export const allResponse = (res: Response, data?: any) => {
+  const response = {
+    success: true,
+    data
+  }
+  res.status(200).json(response)
+}
+
 
 
 //& ERROR RESPONSE
@@ -76,11 +88,25 @@ export const unauthorizedResponse = (res: Response, message?: string, data?: Use
 
 
 //& FORBIDDEN RESPONSE
-export const forbiddenResponse = (res: Response) => {
+export const forbiddenResponse = (res: Response, message: string) => {
   const response = {
     success: false,
-    message : `Temporary deactivated!`,
+    message,
     data: null
   }
   res.status(403).json(response)
 }
+
+
+//& BAD REQUEST RESPONSE
+export const badResponse = (res: Response, message: string) => {
+  const response = {
+    success: false,
+    message,
+    data: null
+  }
+  res.status(400).json(response)
+}
+
+
+

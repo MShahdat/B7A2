@@ -1,15 +1,13 @@
 import { Router } from "express";
 import { issuecontroller } from "./issues.controller";
 import { authorization } from "../../middleWare/auth";
+import { USER_ROLE } from "../../utility/util";
 
 const router = Router()
 
-const ROLE = {
-  contributor: 'contributor',
-  maintainer: 'maintainer'
-}
 
-router.post('/', authorization.issueCreateAuth(ROLE.contributor), issuecontroller.createIssues)
+router.post('/', authorization.issueCreateAuth(USER_ROLE.contributor, USER_ROLE.maintainer), issuecontroller.createIssues)
+router.get('/', issuecontroller.getAllIssues)
 
 
 

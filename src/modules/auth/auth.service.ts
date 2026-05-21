@@ -7,28 +7,35 @@ import config from "../../config/env";
 
 //& CREATE USER
 const createUserIntoDB = async (payload: User) => {
-
   try {
-    const { password } = payload
+    
+    const role = payload?.role
+    console.log('user role : ', role)
+    if (role === 'contributor' || role === 'maintainer' || role === undefined) {
+      
+      const { password } = payload
+      const hasPass = await bcrypt.hash(password, 9);
+      payload.password = hasPass
 
-    const hasPass = await bcrypt.hash(password, 9);
-    payload.password = hasPass
+      const keys = Object.keys(payload)
+      const values = Object.values(payload)
 
-    const keys = Object.keys(payload)
-    const values = Object.values(payload)
+      const cols = keys.join(", ")
+      const placeholder = keys.map((_, idx) => `$${idx + 1}`).join(", ")
 
-    const cols = keys.join(", ")
-
-    const placeholder = keys.map((_, idx) => `$${idx + 1}`).join(", ")
-
-    const result = await pool.query(`
+      const result = await pool.query(`
         INSERT INTO users (${cols})
         VALUES (${placeholder})
         RETURNING * 
       `, values)
 
-    delete result.rows[0].password
-    return result
+      delete result.rows[0].password
+      return result
+    } 
+    else {
+      return false
+    }
+
   } catch (error: any) {
     throw new Error(error.message)
   }
@@ -47,7 +54,7 @@ const loginUserFromDB = async (payload: LoginBody) => {
       SELECT * FROM users WHERE email = $1
     `, [email])
 
-      console.log(isUser.rows[0])
+    console.log(isUser.rows[0])
 
     if (isUser.rows.length === 0) {
       throw new Error("Invalid Credential!")
