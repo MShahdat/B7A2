@@ -1,6 +1,6 @@
 import type { Request, Response } from "express";
 import { authService } from "./auth.service";
-import { badResponse, createResponse, errorResponse, forbiddenResponse, successResponse, unauthorizedResponse } from "../../utility/sendResponse";
+import { badResponse, errorResponse, successResponse } from "../../utility/sendResponse";
 import type { User } from "./types";
 
 
@@ -27,13 +27,15 @@ const loginUser = async (req: Request, res: Response) => {
 
   try {
     const result = await authService.loginUserFromDB(req.body)
+    
     if(!result){
       badResponse(res, 'Invalid Credential!')
       return
     }
     return successResponse(res, "Login successful", result as any)
     
-  } catch (error: any) {
+  } 
+  catch (error: any) {
     return errorResponse(res, error.message, error)
   }
 

@@ -10,13 +10,13 @@ import { verifyAuth } from "./commonAuth";
 const issueAuth = (...roles: string[]) => {
   return async (req: Request, res: Response, next: NextFunction) => {
     try {
-
       const auth = await verifyAuth(req, res, roles)
       if (!auth) {
         return
       }
       next()
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       return errorResponse(res, error.message, error)
     }
   }
@@ -37,14 +37,13 @@ const issueUpdateAuth = (...roles: string[]) => {
       const updateIssue = await pool.query(`
         SELECT * FROM issues WHERE id = $1
       `, [id])
-
-      console.log('updated issue ', updateIssue.rows[0])
+      // console.log('updated issue ', updateIssue.rows[0])
 
       if (updateIssue.rows.length === 0) {
         return notFoundResponse(res)
       }
 
-      const authRole = req.user?.role // 
+      const authRole = req.user?.role 
       const userId = String(req.user?.id)
       console.log('user id from token : ', userId)
 
@@ -60,8 +59,8 @@ const issueUpdateAuth = (...roles: string[]) => {
       }
 
       next()
-
-    } catch (error: any) {
+    } 
+    catch (error: any) {
       return errorResponse(res, error.message, error)
     }
   }

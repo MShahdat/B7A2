@@ -48,7 +48,6 @@ const getAllIssuesFromDB = async (
   status?: "open" | "in_progress" | "resolved"
  ) => {
   try {
-
     const conditions: string[] = []
     const values = []
 
@@ -110,7 +109,6 @@ const getAllIssuesFromDB = async (
 //& GET SINGLE ISSUES FROM DB
 const getSingleIssuesFromDB = async (id: string) => {
   try {
-
     const result = await pool.query(`
       SELECT * FROM issues WHERE id = $1
     `, [id])
@@ -149,7 +147,6 @@ const getSingleIssuesFromDB = async (id: string) => {
 //& UPDATE ISSUE FROM DB
 const updateIssueInfoBD = async (payload: Issues, id: string) => {
   try {
-
     const { title, description, type, status } = payload
     // console.log(status)
 
@@ -159,6 +156,7 @@ const updateIssueInfoBD = async (payload: Issues, id: string) => {
     if (!validType || !validStatus) {
       return 0
     }
+    
     const isIssue = await pool.query(`
       SELECT * FROM issues 
       WHERE id = $1  

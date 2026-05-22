@@ -45,7 +45,7 @@ export const errorResponse = (res: Response, message: string, data?: User) => {
     message,
     data
   }
-  res.status(200).json(response)
+  res.status(500).json(response)
 }
 
 
@@ -75,11 +75,10 @@ export const notFoundResponse = (res: Response) => {
 
 
 //& UNAUTHORIZED RESPONSE
-export const unauthorizedResponse = (res: Response, message?: string, data?: User) => {
+export const unauthorizedResponse = (res: Response, message?: string) => {
   const response = {
     success: false,
     message : message || "Unauthorized access!",
-    data
   }
   res.status(401).json(response)
 }
@@ -91,8 +90,7 @@ export const unauthorizedResponse = (res: Response, message?: string, data?: Use
 export const forbiddenResponse = (res: Response, message: string) => {
   const response = {
     success: false,
-    message,
-    data: null
+    message
   }
   res.status(403).json(response)
 }

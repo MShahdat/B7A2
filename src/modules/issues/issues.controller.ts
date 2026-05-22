@@ -1,5 +1,5 @@
 import type { Request, Response } from "express"
-import { allResponse, badResponse, errorResponse, forbiddenResponse, notFoundResponse, successResponse } from "../../utility/sendResponse"
+import { allResponse, badResponse, errorResponse, notFoundResponse, successResponse } from "../../utility/sendResponse"
 import { issueService } from "./issues.service"
 import type { Issues } from "./type"
 
@@ -46,6 +46,7 @@ const getAllIssues = async (req: Request, res: Response) => {
 }
 
 
+
 //& GET SINGLE ISSUES
 const getSingleIssues = async (req: Request, res: Response) => {
 
@@ -70,12 +71,11 @@ const updateIssue = async (req: Request, res: Response) => {
   try {
     const { id } = req.params
     const body = req.body
-    // console.log('body: ', body)
 
     const result = await issueService.updateIssueInfoBD(body, id as string)
 
     if(result === 0){
-      forbiddenResponse(res, 'Invalid type or status!')
+      badResponse(res, 'Invalid type or status!')
       return
     }
     if (!result) {
@@ -84,9 +84,6 @@ const updateIssue = async (req: Request, res: Response) => {
     else {
       return successResponse(res, "Issue updated successfully", result.rows[0])
     }
-
-
-
   }
   catch (error: any) {
     return errorResponse(res, error.message, error)
@@ -98,16 +95,15 @@ const updateIssue = async (req: Request, res: Response) => {
 const deleteIssue = async (req: Request, res: Response) => {
   try {
     const { id } = req.params
-
     const reslut = await issueService.deleteIssueFromDB(id as string)
 
     if (reslut.rowCount === 0) {
       return notFoundResponse(res)
     }
-
+    
     return successResponse(res, "Issue deleted successfully")
-
-  } catch (error: any) {
+  } 
+  catch (error: any) {
     return errorResponse(res, error.message, error)
   }
 }
