@@ -157,7 +157,7 @@ const updateIssueInfoBD = async (payload: Issues, id: string) => {
     const validStatus = status === "open" || status === "in_progress" || status === "resolved" || status === undefined
 
     if (!validType || !validStatus) {
-      throw new Error("Invalid type or status")
+      return 0
     }
     const isIssue = await pool.query(`
       SELECT * FROM issues 

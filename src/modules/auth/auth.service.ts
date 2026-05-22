@@ -54,17 +54,17 @@ const loginUserFromDB = async (payload: LoginBody) => {
       SELECT * FROM users WHERE email = $1
     `, [email])
 
-    console.log(isUser.rows[0])
+    // console.log(isUser.rows[0])
 
     if (isUser.rows.length === 0) {
-      throw new Error("Invalid Credential!")
+      return false
     }
 
     const pass = isUser.rows[0].password
     const isMatch = await bcrypt.compare(password, pass)
 
     if (!isMatch) {
-      throw new Error("Invalid Credential!")
+      return false
     }
 
     //! Genereate JWT token

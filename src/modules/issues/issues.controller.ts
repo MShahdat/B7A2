@@ -74,7 +74,10 @@ const updateIssue = async (req: Request, res: Response) => {
 
     const result = await issueService.updateIssueInfoBD(body, id as string)
 
-    
+    if(result === 0){
+      forbiddenResponse(res, 'Invalid type or status!')
+      return
+    }
     if (!result) {
       return notFoundResponse(res)
     } 
