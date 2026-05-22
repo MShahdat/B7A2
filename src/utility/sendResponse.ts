@@ -7,8 +7,9 @@ import type { User } from "../modules/auth/types"
 export const rootResponse = (res: Response) => {  
   const response = {
     success: true,
-    message: "Welcome to Assignet 2",
-    author: "Shahdat Hossain"
+    author: "Shahdat Hossain",
+    title: "DevPulse Issue Tracker API",
+    description: "A robust RESTful API for issue tracking and team collaboration, built with Node.js, Express.js, and TypeScript. The system features JWT-based authentication, role-based access control, and a PostgreSQL database managed via raw SQL queries."
   }
 
   res.status(200).json(response)
@@ -39,11 +40,11 @@ export const allResponse = (res: Response, data?: any) => {
 
 
 //& ERROR RESPONSE
-export const errorResponse = (res: Response, message: string, data?: User) => {
+export const errorResponse = (res: Response, message: string, error?: any) => {
   const response = {
     success: false,
     message,
-    data
+    error: error?.stack
   }
   res.status(500).json(response)
 }

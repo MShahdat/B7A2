@@ -9,7 +9,7 @@ const router = Router()
 router.post('/', authorization.issueAuth(USER_ROLE.contributor, USER_ROLE.maintainer), issuecontroller.createIssues)
 router.get('/', issuecontroller.getAllIssues)
 router.get('/:id', issuecontroller.getSingleIssues)
-router.put('/:id', authorization.issueUpdateAuth(USER_ROLE.maintainer, USER_ROLE.contributor), issuecontroller.updateIssue)
+router.patch('/:id', authorization.issueUpdateAuth(USER_ROLE.maintainer, USER_ROLE.contributor), issuecontroller.updateIssue)
 router.delete('/:id', authorization.issueAuth(USER_ROLE.maintainer), issuecontroller.deleteIssue)
 
 

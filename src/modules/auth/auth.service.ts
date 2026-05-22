@@ -56,7 +56,7 @@ const loginUserFromDB = async (payload: LoginBody) => {
     `, [email])
 
     if (isUser.rows.length === 0) {
-      return false
+      return 0
     }
 
     const pass = isUser.rows[0].password

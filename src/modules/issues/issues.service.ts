@@ -147,8 +147,14 @@ const getSingleIssuesFromDB = async (id: string) => {
 //& UPDATE ISSUE FROM DB
 const updateIssueInfoBD = async (payload: Issues, id: string) => {
   try {
-    const { title, description, type, status } = payload
-    // console.log(status)
+    const keys = Object.keys(payload)
+    const values = Object.values(payload)
+
+    const setQuery = keys.map((key, index) => `${key} = $${index + 1}`).join(", ")
+    values.push(id)
+
+    const {type} = payload
+    const {status} = payload
 
     const validType = type === "bug" || type === "feature_request" || type === undefined
     const validStatus = status === "open" || status === "in_progress" || status === "resolved" || status === undefined
@@ -167,16 +173,13 @@ const updateIssueInfoBD = async (payload: Issues, id: string) => {
     }
 
     const result = await pool.query(`
-      UPDATE issues 
-      SET 
-      title = COALESCE($1, title),
-      description = COALESCE ($2, description),
-      type = COALESCE ($3, type),
-      status = COALESCE($4, status),
+      UPDATE issues
+      SET
+      ${setQuery},
       updated_at = NOW()
-      WHERE id = $5
+      WHERE id = $${values.length}
       RETURNING *
-    `, [title, description, type, status, id])
+      `,values)
 
     return result
   }
